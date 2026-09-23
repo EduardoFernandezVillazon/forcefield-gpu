@@ -1,0 +1,22 @@
+[package]
+name = "forcefield-gpu"
+version = "0.1.0"
+edition = "2021"
+license = "BSD-3-Clause"
+description = "GPU (wgpu compute) implementation of the d3-force model used by forcefield, with automatic CPU fallback"
+repository = "https://github.com/EduardoFernandezVillazon/forcefield-gpu"
+authors = ["Eduardo Fernandez Villazon"]
+keywords = ["graph", "layout", "force-directed", "wgpu", "gpu"]
+categories = ["algorithms", "visualization"]
+
+[dependencies]
+forcefield = "0.1"
+wgpu = "30"
+pollster = "1"
+bytemuck = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+
+[profile.release]
+opt-level = 3
