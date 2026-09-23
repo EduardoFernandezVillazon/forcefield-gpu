@@ -63,6 +63,9 @@ pub struct AdapterInfo {
     pub name: String,
     pub backend: String,
     pub device_type: String,
+    /// True for software rasterizers (llvmpipe, SwiftShader, WARP): valid
+    /// adapters that run on the CPU, usually slower than the CPU crate.
+    pub software: bool,
 }
 
 /// Shared device handle so several simulations can reuse one GPU device.
@@ -100,6 +103,7 @@ async fn request_gpu() -> Result<Gpu, GpuError> {
             name: info.name,
             backend: format!("{:?}", info.backend),
             device_type: format!("{:?}", info.device_type),
+            software: info.device_type == wgpu::DeviceType::Cpu,
         },
     })
 }

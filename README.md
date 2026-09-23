@@ -21,8 +21,11 @@ sim.run(300);                                          // until alpha < alpha_mi
 let xy: &[f32] = sim.positions();                      // [x0, y0, x1, y1, …]
 ```
 
-`Simulation::with_backend(Backend::Gpu, …)` forces the GPU and errors
-without an adapter; `probe()` reports what would be used. `GpuSimulation`
+`Simulation::new` skips software adapters (llvmpipe, SwiftShader, WARP),
+which are slower than the CPU crate; `Simulation::select(…, true)` allows
+them. `Simulation::with_backend(Backend::Gpu, …)` forces the GPU and errors
+without an adapter; `probe()` reports what would be used and whether it is
+software. `GpuSimulation`
 is the backend on its own, and `Gpu::acquire()` gives a device handle you
 can share between simulations.
 

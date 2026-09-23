@@ -19,14 +19,24 @@ pub enum Simulation {
 }
 
 impl Simulation {
-    /// GPU if available, else CPU. Never fails.
+    /// A hardware GPU if available, else CPU. Never fails. Software adapters
+    /// (llvmpipe, SwiftShader, WARP) are skipped: they are slower than the
+    /// CPU crate. Use [`Simulation::select`] to allow them.
     pub fn new(nodes: &[NodeInit], config: &Config) -> Simulation {
+        Simulation::select(nodes, config, false)
+    }
+
+    /// Like [`Simulation::new`], with `allow_software` deciding whether a
+    /// software rasterizer counts as a GPU (useful for tests and CI).
+    pub fn select(nodes: &[NodeInit], config: &Config, allow_software: bool) -> Simulation {
         match Gpu::acquire() {
-            Ok(gpu) => match GpuSimulation::with_gpu(gpu, nodes, config) {
-                Ok(s) => Simulation::Gpu(Box::new(s)),
-                Err(_) => Simulation::cpu(nodes, config),
-            },
-            Err(_) => Simulation::cpu(nodes, config),
+            Ok(gpu) if allow_software || !gpu.info.software => {
+                match GpuSimulation::with_gpu(gpu, nodes, config) {
+                    Ok(s) => Simulation::Gpu(Box::new(s)),
+                    Err(_) => Simulation::cpu(nodes, config),
+                }
+            }
+            _ => Simulation::cpu(nodes, config),
         }
     }
 
